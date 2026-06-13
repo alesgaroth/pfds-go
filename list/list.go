@@ -9,22 +9,21 @@ type List[T any] struct {
 	next *List[T]
 }
 
-
-func EmptyList[T any]()  *List[T] {
+func EmptyList[T any]() *List[T] {
 	return nil
 }
 
-func (l *List[T])GetEmpty() interfaces.Stack[T] {
+func (l *List[T]) GetEmpty() interfaces.Stack[T] {
 	return nil
 }
 
-func (l*List[T]) IsEmpty() bool {
+func (l *List[T]) IsEmpty() bool {
 	return l == nil
 }
-func (l*List[T]) Cons(t T) interfaces.Stack[T] {
+func (l *List[T]) Cons(t T) interfaces.Stack[T] {
 	return &List[T]{t, l}
 }
-func (l*List[T]) Head() T {
+func (l *List[T]) Head() T {
 	if l == nil {
 		var zero T
 		return zero
@@ -32,7 +31,7 @@ func (l*List[T]) Head() T {
 		return l.data
 	}
 }
-func (l*List[T]) Tail() interfaces.Stack[T] {
+func (l *List[T]) Tail() interfaces.Stack[T] {
 	if l == nil {
 		return nil
 	} else {

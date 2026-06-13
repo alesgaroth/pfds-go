@@ -7,6 +7,3 @@ type Stack[T any] interface {
 	Head() T
 	Tail() Stack[T]
 }
-
-
-

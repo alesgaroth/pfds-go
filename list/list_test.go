@@ -19,6 +19,3 @@ func TestAddToListEtc(t *testing.T) {
 		t.Fatalf("expected 3 got %v", l.Head())
 	}
 }
-
-
-

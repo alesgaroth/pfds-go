@@ -58,10 +58,9 @@ func (t *Tree[T]) Insert(elem T) (retval *Tree[T]) {
 			}
 		}
 	}()
-	retval =  t.insert(elem)
+	retval = t.insert(elem)
 	return retval
 }
-
 
 func (t *Tree[T]) insert(elem T) *Tree[T] {
 	if t == nil {
@@ -69,9 +68,21 @@ func (t *Tree[T]) insert(elem T) *Tree[T] {
 	}
 	if elem.Lt(t.data) {
 		return &Tree[T]{t.left.insert(elem), t.right, t.data}
-	} else if t.data.Lt(elem) {
-		return &Tree[T]{t.left, t.right.insert(elem), t.data}
 	} else {
-		panic(alreadyThere)
+		return &Tree[T]{t.left, t.right.ins(t, elem), t.data}
+	}
+}
+
+func (t *Tree[T]) ins(last *Tree[T], elem T) *Tree[T] {
+	if t == nil {
+		if last.data.Eq(elem) {
+			panic(alreadyThere)
+		}
+		return &Tree[T]{nil, nil, elem}
+	}
+	if elem.Lt(t.data) {
+		return &Tree[T]{t.left.ins(last, elem), t.right, t.data}
+	} else {
+		return &Tree[T]{t.left, t.right.ins(t, elem), t.data}
 	}
 }
