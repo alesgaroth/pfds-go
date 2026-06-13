@@ -9,10 +9,14 @@ type List[T any] struct {
 	next *List[T]
 }
 
+
 func EmptyList[T any]()  *List[T] {
 	return nil
 }
 
+func (l *List[T])GetEmpty() interfaces.Stack[T] {
+	return nil
+}
 
 func (l*List[T]) IsEmpty() bool {
 	return l == nil
