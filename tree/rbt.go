@@ -17,6 +17,10 @@ type RbTree[T Ordered[T]] struct {
 	data        T
 }
 
+func EmptyRbTree[T Ordered[T]]() *RbTree[T] {
+	return nil
+}
+
 func (t *RbTree[T]) GetEmpty() interfaces.Set[T] {
 	return nil
 }
@@ -47,7 +51,10 @@ func (t *RbTree[T]) member(last *RbTree[T], elem T) bool {
 	}
 }
 
-func (t *RbTree[T]) Insert(elem T) (retval interfaces.Set[T]) {
+func (t *RbTree[T]) Insert(elem T) interfaces.Set[T] {
+	if t == nil {
+		return &RbTree[T]{Black, nil, nil, elem}
+	}
 	t2 := t.ins(elem)
 	return &RbTree[T]{Black, t2.left, t2.right, t2.data}
 }
