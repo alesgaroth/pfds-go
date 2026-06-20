@@ -55,54 +55,66 @@ func (t *RbTree[T]) Insert(elem T) interfaces.Set[T] {
 	if t == nil {
 		return &RbTree[T]{Black, nil, nil, elem}
 	}
-	t2 := t.ins(elem)
+	t2, _ := t.ins(elem)
 	return &RbTree[T]{Black, t2.left, t2.right, t2.data}
 }
 
 type balancer[T Ordered[T]] func(colour Colour, left *RbTree[T], right *RbTree[T], data T) *RbTree[T]
 
-func (t *RbTree[T]) ins(elem T) (retval *RbTree[T]) {
-	if t == nil {
-		return &RbTree[T]{Red, nil, nil, elem}
-	}
-	if elem.Lt(t.data) {
-		newleft, balance := t.left.lIns(elem)
-		return balance(t.colour, newleft, t.right, t.data)
-	} else if t.data.Lt(elem) {
-		newright, balance := t.right.rIns(elem)
-		return balance(t.colour, t.left, newright, t.data)
-	} else {
-		return t // aleady here
-	}
-}
-
-func (t *RbTree[T]) lIns(elem T) (*RbTree[T], balancer[T]) {
+func (t *RbTree[T]) ins(elem T) (retval *RbTree[T], retbalancer balancer[T]) {
 	if t == nil {
 		return &RbTree[T]{Red, nil, nil, elem}, nobalance
 	}
 	if elem.Lt(t.data) {
-		newleft, balance := t.left.lIns(elem)
+		newleft, balance := t.left.ins(elem)
 		return balance(t.colour, newleft, t.right, t.data), llbalance
-	} else if t.data.Lt(elem) {
-		newright, balance := t.right.rIns(elem)
-		return balance(t.colour, t.left, newright, t.data), lrbalance
 	} else {
-		return t, nobalance // aleady here
+		return t.balancedRIns(elem, lrbalance)
 	}
 }
 
-func (t *RbTree[T]) rIns(elem T) (*RbTree[T], balancer[T]) {
+func (t *RbTree[T]) balancedRIns(elem T, upbalancer balancer[T]) (retval *RbTree[T], retbalancer balancer[T]) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r == alreadyThere {
+				retval = t
+				retbalancer = nobalance
+			} else {
+				panic(r)
+			}
+		}
+	}()
+	newright, balance := t.right.rIns(t, elem)
+	return balance(t.colour, t.left, newright, t.data), upbalancer
+}
+
+func (t *RbTree[T]) lIns(last *RbTree[T], elem T) (retval *RbTree[T], retbalancer balancer[T]) {
 	if t == nil {
+		if last.data.Eq(elem) {
+			panic(alreadyThere)
+		}
 		return &RbTree[T]{Red, nil, nil, elem}, nobalance
 	}
 	if elem.Lt(t.data) {
-		newleft, balance := t.left.lIns(elem)
-		return balance(t.colour, newleft, t.right, t.data), rlbalance
-	} else if t.data.Lt(elem) {
-		newright, balance := t.right.rIns(elem)
-		return balance(t.colour, t.left, newright, t.data), rrbalance
+		newleft, balance := t.left.lIns(last, elem)
+		return balance(t.colour, newleft, t.right, t.data), llbalance
 	} else {
-		return t, nobalance // aleady here
+		return t.balancedRIns(elem, lrbalance)
+	}
+}
+
+func (t *RbTree[T]) rIns(last *RbTree[T], elem T) (retval *RbTree[T], retbalancer balancer[T]) {
+	if t == nil {
+		if last.data.Eq(elem) {
+			panic(alreadyThere)
+		}
+		return &RbTree[T]{Red, nil, nil, elem}, nobalance
+	}
+	if elem.Lt(t.data) {
+		newleft, balance := t.left.lIns(last, elem)
+		return balance(t.colour, newleft, t.right, t.data), rlbalance
+	} else {
+		return t.balancedRIns(elem, rrbalance)
 	}
 }
 

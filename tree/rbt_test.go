@@ -24,6 +24,11 @@ func TestTen(t *testing.T) {
 			t.Fatalf("oops has %v", x)
 		}
 	}
+	if tree,ok := tr.(*RbTree[OrderedInt]); ok {
+		checkInvariants(t, tree) 
+	} else {
+		t.Fatalf("I was testing RbTree, but ended up with a %t", tr)
+	}
 }
 
 func (t *RbTree[T]) String() string {
@@ -56,6 +61,11 @@ func TestTenBack(t *testing.T) {
 			t.Fatalf("oops has %v", x)
 		}
 	}
+	if tree,ok := tr.(*RbTree[OrderedInt]); ok {
+		checkInvariants(t, tree) 
+	} else {
+		t.Fatalf("I was testing RbTree, but ended up with a %t", tr)
+	}
 }
 
 func TestTenUpFromFive(t *testing.T) {
@@ -77,6 +87,11 @@ func TestTenUpFromFive(t *testing.T) {
 		if tr.Member(x) {
 			t.Fatalf("oops has %v", x)
 		}
+	}
+	if tree,ok := tr.(*RbTree[OrderedInt]); ok {
+		checkInvariants(t, tree) 
+	} else {
+		t.Fatalf("I was testing RbTree, but ended up with a %t", tr)
 	}
 }
 
@@ -100,6 +115,11 @@ func TestTenDownFromFive(t *testing.T) {
 		if tr.Member(x) {
 			t.Fatalf("oops has %v", x)
 		}
+	}
+	if tree,ok := tr.(*RbTree[OrderedInt]); ok {
+		checkInvariants(t, tree) 
+	} else {
+		t.Fatalf("I was testing RbTree, but ended up with a %t", tr)
 	}
 }
 
@@ -125,6 +145,33 @@ func ftest(t *testing.T, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11 int) {
 		if tr.Member(x) {
 			t.Fatalf("oops has %v", x)
 		}
+	}
+
+	if tree,ok := tr.(*RbTree[OrderedInt]); ok {
+		checkInvariants(t, tree) 
+	} else {
+		t.Fatalf("I was testing RbTree, but ended up with a %t", tr)
+	}
+}
+
+func checkInvariants(t *testing.T, tr *RbTree[OrderedInt]) int {
+	if tr == nil {
+		return 0
+	}
+	leftheight, rightheight :=  checkInvariants(t, tr.left),  checkInvariants(t, tr.right)
+	if leftheight != rightheight {
+		t.Fatalf("%v is not balanced %d vs %d ", tr, leftheight, rightheight)
+	}
+	if tr.colour == Red {
+	  if (tr.left != nil && tr.left.colour == Red) || (tr.right != nil && tr.right.colour == Red) {
+			t.Fatalf("%v is red but has a red child", tr)
+		}
+		return leftheight 
+	} else if tr.colour == Black {
+		return leftheight + 1
+	} else { // what?
+		t.Fatalf("Unknown colour for %v", tr)
+		return 0
 	}
 }
 
