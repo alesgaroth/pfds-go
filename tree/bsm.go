@@ -5,7 +5,7 @@ import (
 	"github.com/alesgaroth/pfds-go/interfaces"
 )
 
-type MapEntry[K any, V comparable] struct {
+type MapEntry[K Ordered[K], V comparable] struct {
 	Key K
 	Val V
 }
@@ -15,7 +15,7 @@ type TreeMap[K Ordered[K], V comparable] struct {
 	data        MapEntry[K, V]
 }
 
-func (l *TreeMap[K, V]) GetEmpty() interfaces.Map[K, V] {
+func (l *TreeMap[K, V]) EmptyMap() interfaces.Map[K, V] {
 	return nil
 }
 
@@ -83,6 +83,7 @@ func (t *TreeMap[K, V]) bind(key K, val V) *TreeMap[K, V] {
 }
 
 func (t *TreeMap[K, V]) bnd(last *TreeMap[K, V], key K, val V) *TreeMap[K, V] {
+	// bug
 	if t == nil {
 		if last.data.Key.Eq(key) && last.data.Val == val {
 			panic(alreadyThere)

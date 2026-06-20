@@ -30,25 +30,8 @@ func (t *RbTree[T]) IsEmpty() bool {
 }
 
 func (t *RbTree[T]) Member(elem T) bool {
-	if t == nil {
-		return false
-	}
-	if elem.Lt(t.data) {
-		return t.left.Member(elem)
-	} else {
-		return t.right.member(t, elem)
-	}
-}
-
-func (t *RbTree[T]) member(last *RbTree[T], elem T) bool {
-	if t == nil {
-		return last.data.Eq(elem)
-	}
-	if elem.Lt(t.data) {
-		return t.left.member(last, elem)
-	} else {
-		return t.right.member(t, elem)
-	}
+	_, err := t.Lookup(elem)
+	return err != NotFound
 }
 
 func (t *RbTree[T]) Insert(elem T) interfaces.Set[T] {
@@ -77,7 +60,7 @@ func (t *RbTree[T]) balancedRIns(elem T, upbalancer balancer[T]) (retval *RbTree
 	defer func() {
 		if r := recover(); r != nil {
 			if r == alreadyThere {
-				retval = t
+				retval = &RbTree[T]{t.colour, t.left, t.right, elem}
 				retbalancer = nobalance
 			} else {
 				panic(r)
@@ -148,4 +131,33 @@ func rrbalance[T Ordered[T]](colour Colour, left *RbTree[T], right *RbTree[T], d
 		return &RbTree[T]{Red, &RbTree[T]{Black, a, b, x}, &RbTree[T]{Black, c, d, z}, y}
 	}
 	return nobalance(colour, left, right, data)
+}
+
+// this is identical to what's in Bsm.go. (Aside from the casts)
+func (t *RbTree[T]) Lookup(elem T) (T, error) {
+	if t == nil {
+		var v T
+		return v, NotFound
+	}
+	if elem.Lt(t.data) {
+		return t.left.Lookup(elem)
+	} else {
+		return t.right.lookup(t, elem)
+	}
+}
+
+func (t *RbTree[T]) lookup(last *RbTree[T], elem T) (T, error) {
+	if t == nil {
+		if last.data.Eq(elem) {
+			return last.data, nil
+		} else {
+			var v T
+			return v, NotFound
+		}
+	}
+	if elem.Lt(t.data) {
+		return t.left.lookup(last, elem)
+	} else {
+		return t.right.lookup(t, elem)
+	}
 }
