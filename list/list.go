@@ -6,7 +6,7 @@ import (
 
 type List[T any] struct {
 	data T
-	next *List[T]
+	next interfaces.Stack[T]
 }
 
 func EmptyList[T any]() *List[T] {
@@ -37,4 +37,7 @@ func (l *List[T]) Tail() interfaces.Stack[T] {
 	} else {
 		return l.next
 	}
+}
+func Prepend[T any](t T, s interfaces.Stack[T]) interfaces.Stack[T] {
+	return &List[T]{t, s}
 }
