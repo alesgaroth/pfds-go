@@ -162,6 +162,12 @@ func checkInvariants(t *testing.T, tr *RbTree[OrderedInt]) int {
 	if leftheight != rightheight {
 		t.Fatalf("%v is not balanced %d vs %d ", tr, leftheight, rightheight)
 	}
+	if leftheight > 0 && tr.left.data > tr.data {
+		t.Fatalf("%v ordering wrong > %v", tr, tr.left)
+	}
+	if rightheight > 0 && tr.right.data < tr.data {
+		t.Fatalf("%v ordering wrong < %v", tr, tr.right)
+	}
 	if tr.colour == Red {
 		if (tr.left != nil && tr.left.colour == Red) || (tr.right != nil && tr.right.colour == Red) {
 			t.Fatalf("%v is red but has a red child", tr)

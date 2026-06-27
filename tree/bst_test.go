@@ -1,8 +1,8 @@
 package tree
 
 import (
-	"testing"
 	"github.com/alesgaroth/pfds-go/interfaces"
+	"testing"
 )
 
 type OrderedInt int
