@@ -7,4 +7,7 @@ type Set[T any] interface {
 	IsEmpty() bool
 	Insert(T) Set[T]
 	Member(T) bool
+	Sequence() Stack[T]
+	Delete(v T) Set[T]
+	Merge(Set[T]) Set[T]
 }

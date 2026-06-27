@@ -29,6 +29,12 @@ func (t *RbTreeMap[K, V]) Bind(key K, val V) interfaces.Map[K, V] {
 	rb = set.(*RbTree[MapEntry[K, V]])
 	return (*RbTreeMap[K, V])(rb)
 }
+func (t *RbTree[T]) Delete(key T) interfaces.Set[T] {
+	panic("Unimplemented")
+}
+func (t *RbTree[T]) Merge(other interfaces.Set[T]) interfaces.Set[T] {
+	panic("Unimplemented")
+}
 
 // this is identical to what's in Bsm.go. (Aside from the casts)
 func (t *RbTreeMap[K, V]) Lookup(elem K) (V, error) {

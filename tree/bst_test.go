@@ -2,6 +2,7 @@ package tree
 
 import (
 	"testing"
+	"github.com/alesgaroth/pfds-go/interfaces"
 )
 
 type OrderedInt int
@@ -17,7 +18,7 @@ func (i OrderedInt) Leq(j OrderedInt) bool {
 }
 
 func TestOne(t *testing.T) {
-	tr := EmptyTree[OrderedInt]()
+	var tr interfaces.Set[OrderedInt] = EmptyTree[OrderedInt]()
 	tr = tr.Insert(2)
 	tr = tr.Insert(1)
 	tr = tr.Insert(3)
