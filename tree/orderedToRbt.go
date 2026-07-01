@@ -3,19 +3,12 @@ package tree
 import (
 	"fmt"
 	"github.com/alesgaroth/pfds-go/interfaces"
+	"github.com/alesgaroth/pfds-go/list"
 	"math/bits"
 )
 
-func Length[T any](s interfaces.Stack[T]) int {
-	var k = 0
-	for k = 0; s != nil && !s.IsEmpty(); k += 1 {
-		s = s.Tail()
-	}
-	return k
-}
-
 func OrderedToRbTree[T Ordered[T]](s interfaces.Stack[T]) *RbTree[T] {
-	ln := Length(s)
+	ln := list.Length(s)
 	if ln < 1 {
 		return nil
 	}
@@ -23,7 +16,7 @@ func OrderedToRbTree[T Ordered[T]](s interfaces.Stack[T]) *RbTree[T] {
 	fmt.Printf("ln=%d k=%d\n", ln, k)
 	tree, leftovers := orderedToRbTree(s, ln, k-1)
 	if leftovers != nil && !leftovers.IsEmpty() {
-		panic(fmt.Sprintf("oops, the stack should be empty after building the tree  from %v items, left %v", Length(s), Length(leftovers)))
+		panic(fmt.Sprintf("oops, the stack should be empty after building the tree  from %v items, left %v", list.Length(s), list.Length(leftovers)))
 	}
 	fmt.Printf("ln=%d k=%d ===> ", ln, k)
 	fmt.Printf("%v\n", tree)

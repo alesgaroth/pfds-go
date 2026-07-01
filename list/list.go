@@ -33,11 +33,19 @@ func (l *List[T]) Head() T {
 }
 func (l *List[T]) Tail() interfaces.Stack[T] {
 	if l == nil {
-		return nil
+		return (*List[T])(nil)
 	} else {
 		return l.next
 	}
 }
 func Prepend[T any](t T, s interfaces.Stack[T]) interfaces.Stack[T] {
 	return &List[T]{t, s}
+}
+
+func Length[T any](s interfaces.Stack[T]) int {
+	var k = 0
+	for k = 0; s != nil && !s.IsEmpty(); k += 1 {
+		s = s.Tail()
+	}
+	return k
 }
