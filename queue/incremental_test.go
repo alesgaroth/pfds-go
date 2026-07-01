@@ -202,6 +202,7 @@ func ftest(t *testing.T, cnt int) {
 		}
 		q = q.Tail()
 	}
+	checkInvariants(t, q.(*IncrementalQueue[int]))
 	if !q.IsEmpty() {
 		t.Errorf("expected the queue to be empty after removing as many (%d) as I added", cnt)
 	}
@@ -211,9 +212,12 @@ func TestLarger(t *testing.T) {
 	for j:= 6; j < 9; j += 1 {
 		ftest(t, j)
 	}
+	for j:= 250; j < 260; j += 1 {
+		ftest(t, j)
+	}
 }
 
-func (p *proGress[T]) String() string {
+func (p *reverser[T]) String() string {
 	return fmt.Sprintf("%v %v %v", Length(p.input), Length(p.reversed), p.internal)
 }
 func (q *IncrementalQueue[T]) String() string {

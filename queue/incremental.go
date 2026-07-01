@@ -5,7 +5,7 @@ import (
 	"github.com/alesgaroth/pfds-go/list"
 )
 
-type proGress[T any] struct {
+type reverser[T any] struct {
 	input    interfaces.Stack[T]
 	reversed interfaces.Stack[T]
 	internal Queue[any]
@@ -16,7 +16,7 @@ type IncrementalQueue[T any] struct {
 	dequeue  interfaces.Stack[T]
 	num      int
 	enSpace  int
-	progress *proGress[T]
+	progress *reverser[T]
 }
 
 func EmptyIncrementalQueue[T any]() Queue[T] {
@@ -33,17 +33,12 @@ func (rtq *IncrementalQueue[T]) Cons(a T) Queue[T] {
 			nil,
 		}
 	}
-	var newEnqueue interfaces.Stack[T]
-	if rtq.enqueue.IsEmpty() {
-		newEnqueue = SingletonStack(a)
-	} else {
-		newEnqueue = rtq.enqueue.Cons(a)
-	}
+	newEnqueue := rtq.enqueue.Cons(a)
 	return rebal(newEnqueue, rtq.dequeue, rtq.num+1, rtq.enSpace-1, rtq.progress)
 }
 
 func (rtq *IncrementalQueue[T]) Head() T {
-	if !rtq.IsEmpty() {
+	if rtq != nil {
 		return rtq.dequeue.Head()
 	} else {
 		var t T
@@ -54,70 +49,98 @@ func (rtq *IncrementalQueue[T]) IsEmpty() bool {
 	return rtq == nil || rtq.num == 0
 }
 func (rtq *IncrementalQueue[T]) Tail() Queue[T] {
-	if rtq.IsEmpty() {
+	if rtq == nil {
 		return EmptyIncrementalQueue[T]()
 	}
-	var newEnqueue = rtq.enqueue
 	var newDequeue = rtq.dequeue.Tail()
-	var newProgress = rtq.progress
-	var newEnspace = rtq.enSpace - 1
 	if newDequeue.IsEmpty() {
-		if newProgress != nil {
-			if !newProgress.internal.IsEmpty() {
-				newDequeue = newProgress.internal.Head().(interfaces.Stack[T])
-				newProgress = &proGress[T]{newProgress.input, newProgress.reversed, newProgress.internal.Tail()}
-			} else if newProgress.input.IsEmpty() {
-				newDequeue = newProgress.reversed
-				newProgress = nil
-			} else {
-				newDequeue = newProgress.reversed.Cons(newProgress.input.Head())
-				newProgress = nil
-			}
-		} else if newEnqueue.IsEmpty() {
-			return EmptyIncrementalQueue[T]()
-		} else {
-			len := list.Length(newEnqueue)
-			if len == 1 {
-				newProgress = nil
-				newDequeue = newEnqueue
-				newEnqueue = list.EmptyList[T]()
-				newEnspace = 2
-			} else {
-				panic("HELP HELP, I'm stuck in a software factory")
-			}
-		}
+		return rtq.emptyDequeue()
+	} else {
+		var newEnqueue = rtq.enqueue
+		var newDequeue = rtq.dequeue.Tail()
+		var newProgress = rtq.progress
+		var newEnspace = rtq.enSpace - 1
+		return rebal(newEnqueue, newDequeue, rtq.num-1, newEnspace, newProgress)
 	}
-	return rebal(newEnqueue, newDequeue, rtq.num-1, newEnspace, newProgress)
 }
 
-func rebal[T any](newEnqueue, newDequeue interfaces.Stack[T], newNum, newEnSpace int, progress *proGress[T]) Queue[T] {
-	if newEnSpace == 0 {
-		var newInternal Queue[any] =  EmptyIncrementalQueue[any]()
-		if progress != nil {
-			newInternal = progress.internal
-			if !progress.reversed.IsEmpty() {
-				newInternal = newInternal.Cons(progress.reversed)
+func (rtq *IncrementalQueue[T]) emptyDequeue() Queue[T] {
+	if rtq.progress != nil {
+		if !rtq.progress.internal.IsEmpty() {
+			var newEnspace = rtq.enSpace - 1
+			var newDequeue = rtq.progress.internal.Head().(interfaces.Stack[T])
+			var newProgress = &reverser[T]{rtq.progress.input, rtq.progress.reversed, rtq.progress.internal.Tail()}
+			return rebal(rtq.enqueue, newDequeue, rtq.num-1, newEnspace, newProgress)
+		} else if rtq.progress.input.IsEmpty() {
+			if !rtq.progress.input.IsEmpty() {
+				panic("Help me!  I'm stuck in a software factory")
 			}
+			var newEnspace = rtq.enSpace - 1
+			var newDequeue = rtq.progress.reversed
+			return rebal(rtq.enqueue, newDequeue, rtq.num-1, newEnspace, nil)
+		} else {
+			len := list.Length(rtq.progress.input)
+			if len > 1 {
+				panic("Help I'm stuck in a software factory")
+			}
+			var newEnspace = rtq.enSpace - 1
+			var newDequeue = rtq.progress.reversed.Cons(rtq.progress.input.Head())
+			return rebal(rtq.enqueue, newDequeue, rtq.num-1, newEnspace, nil)
 		}
-		return &IncrementalQueue[T]{
-			list.EmptyList[T](), newDequeue, newNum, newNum + 1,
-			&proGress[T]{newEnqueue.Tail(), SingletonStack(newEnqueue.Head()), newInternal},
-		}
+	} else if rtq.enqueue.IsEmpty() {
+		return EmptyIncrementalQueue[T]()
 	} else {
-		if progress != nil && !progress.input.IsEmpty() {
-			progress = &proGress[T]{
-				progress.input.Tail(),
-				progress.reversed.Cons(progress.input.Head()),
-				progress.internal,
-			}
+		len := list.Length(rtq.enqueue)
+		if len == 1 {
+			var newEnqueue = list.EmptyList[T]()
+			return reverseStep(newEnqueue, rtq.enqueue, rtq.num-1, 2, nil)
+		} else {
+			panic("HELP HELP, I'm stuck in a software factory")
 		}
-		return &IncrementalQueue[T]{
-			newEnqueue,
-			newDequeue,
-			newNum,
-			newEnSpace,
-			progress,
+	}
+}
+
+func rebal[T any](newEnqueue, newDequeue interfaces.Stack[T], newNum, newEnSpace int, progress *reverser[T]) Queue[T] {
+	if newEnSpace == 0 {
+		return noSpaceLeftInEnqueue(newEnqueue, newDequeue, newNum, newEnSpace, progress)
+	} else {
+		return reverseStep(newEnqueue, newDequeue, newNum, newEnSpace, progress)
+	}
+}
+
+func noSpaceLeftInEnqueue[T any](newEnqueue, newDequeue interfaces.Stack[T], newNum, newEnSpace int, progress *reverser[T]) Queue[T] {
+	// no space left in enqueue.  move it to the reverser
+	var newInternal Queue[any] = EmptyIncrementalQueue[any]()
+	if progress != nil {
+		newInternal = progress.internal
+		if !progress.input.IsEmpty() {
+			panic("Help me! I'm stuck in a software factory")
 		}
+		if !progress.reversed.IsEmpty() {
+			newInternal = newInternal.Cons(progress.reversed)
+		}
+	}
+	// at this point progress.input and progress.reversed are empty
+	return &IncrementalQueue[T]{
+		list.EmptyList[T](), newDequeue, newNum, newNum + 1,
+		&reverser[T]{newEnqueue.Tail(), SingletonStack(newEnqueue.Head()), newInternal},
+	}
+}
+
+func reverseStep[T any](newEnqueue, newDequeue interfaces.Stack[T], newNum, newEnSpace int, progress *reverser[T]) Queue[T] {
+	if progress != nil && !progress.input.IsEmpty() {
+		progress = &reverser[T]{
+			progress.input.Tail(),
+			progress.reversed.Cons(progress.input.Head()),
+			progress.internal,
+		}
+	}
+	return &IncrementalQueue[T]{
+		newEnqueue,
+		newDequeue,
+		newNum,
+		newEnSpace,
+		progress,
 	}
 }
 
