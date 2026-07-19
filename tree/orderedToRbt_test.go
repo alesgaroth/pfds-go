@@ -119,13 +119,13 @@ func TestQuadrupleOrderedToRbTree(t *testing.T) {
 }
 
 func TestLength(t *testing.T) {
-	if 0 != Length(buildStack()) {
+	if 0 != list.Length(buildStack()) {
 		t.Fatalf("empty buildStack should return length 0")
 	}
-	if 1 != Length(buildStack(1)) {
+	if 1 != list.Length(buildStack(1)) {
 		t.Fatalf("singleton buildStack should return length 1")
 	}
-	if 2 != Length(buildStack(1, 2)) {
+	if 2 != list.Length(buildStack(1, 2)) {
 		t.Fatalf("dual buildStack should return length 2")
 	}
 }
