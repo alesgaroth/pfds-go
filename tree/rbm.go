@@ -47,12 +47,21 @@ func (t *RbTreeMap[K, V]) Lookup(elem K) (V, error) {
 
 // first let's be able to sequence the map
 func (t *RbTreeMap[K,V]) Left() AbsTree[interfaces.MapEntry[K,V]] {
+	if t == nil {
+		return nil
+	}
 	return (*RbTreeMap[K, V])(t.left)
 }
 func (t *RbTreeMap[K,V]) Right() AbsTree[interfaces.MapEntry[K,V]] {
+	if t == nil {
+		return nil
+	}
 	return (*RbTreeMap[K, V])(t.right)
 }
 func (t *RbTreeMap[K,V]) Data() interfaces.MapEntry[K,V] {
+	if t == nil {
+		return nil
+	}
 	return t.data
 }
 
