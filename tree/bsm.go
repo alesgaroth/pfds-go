@@ -106,12 +106,21 @@ func (t *TreeMap[K, V]) bnd(last *TreeMap[K, V], key K, val V) *TreeMap[K, V] {
 
 // first let's be able to sequence the map
 func (t *TreeMap[K,V]) Left() AbsTree[interfaces.MapEntry[K,V]] {
+	if t == nil  || t.left == nil {
+		return nil
+	}
 	return t.left
 }
 func (t *TreeMap[K,V]) Right() AbsTree[interfaces.MapEntry[K,V]] {
+	if t == nil  || t.right == nil {
+		return nil
+	}
 	return t.right
 }
 func (t *TreeMap[K,V]) Data() interfaces.MapEntry[K,V] {
+	if t == nil  {
+		return nil
+	}
 	return t.data
 }
 
