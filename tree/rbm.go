@@ -20,6 +20,10 @@ func (t *RbTreeMap[K, V]) IsEmpty() bool {
 	return t == nil
 }
 
+func EmptyRbTreeMap[K Ordered[K], V comparable]() *RbTreeMap[K, V] {
+	return nil
+}
+
 func (t *RbTreeMap[K, V]) EmptyMap() interfaces.Map[K, V] {
 	return nil
 }
