@@ -5,13 +5,13 @@ import (
 )
 
 func (mapentry MapEntry[K, V]) Eq(other MapEntry[K, V]) bool {
-	return mapentry.Key.Eq(other.Key)
+	return mapentry.key.Eq(other.key)
 }
 func (mapentry MapEntry[K, V]) Leq(other MapEntry[K, V]) bool {
-	return mapentry.Key.Leq(other.Key)
+	return mapentry.key.Leq(other.key)
 }
 func (mapentry MapEntry[K, V]) Lt(other MapEntry[K, V]) bool {
-	return mapentry.Key.Lt(other.Key)
+	return mapentry.key.Lt(other.key)
 }
 
 type RbTreeMap[K Ordered[K], V comparable] RbTree[MapEntry[K, V]]
@@ -29,12 +29,6 @@ func (t *RbTreeMap[K, V]) Bind(key K, val V) interfaces.Map[K, V] {
 	rb = set.(*RbTree[MapEntry[K, V]])
 	return (*RbTreeMap[K, V])(rb)
 }
-func (t *RbTree[T]) Delete(key T) interfaces.Set[T] {
-	panic("Unimplemented")
-}
-func (t *RbTree[T]) Merge(other interfaces.Set[T]) interfaces.Set[T] {
-	panic("Unimplemented")
-}
 
 // this is identical to what's in Bsm.go. (Aside from the casts)
 func (t *RbTreeMap[K, V]) Lookup(elem K) (V, error) {
@@ -43,6 +37,21 @@ func (t *RbTreeMap[K, V]) Lookup(elem K) (V, error) {
 	if err != nil {
 		return v, err
 	} else {
-		return actual.Val, nil
+		return actual.val, nil
 	}
+}
+
+// first let's be able to sequence the map
+func (t *RbTreeMap[K,V]) Left() AbsTree[interfaces.MapEntry[K,V]] {
+	return (*RbTreeMap[K, V])(t.left)
+}
+func (t *RbTreeMap[K,V]) Right() AbsTree[interfaces.MapEntry[K,V]] {
+	return (*RbTreeMap[K, V])(t.right)
+}
+func (t *RbTreeMap[K,V]) Data() interfaces.MapEntry[K,V] {
+	return t.data
+}
+
+func (t *RbTreeMap[K, V])	Sequence() interfaces.Stack[interfaces.MapEntry[K, V]] {
+	return Sequence(t)
 }

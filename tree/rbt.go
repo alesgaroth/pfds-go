@@ -161,3 +161,14 @@ func (t *RbTree[T]) lookup(last *RbTree[T], elem T) (T, error) {
 		return t.right.lookup(t, elem)
 	}
 }
+
+func (t *RbTree[T]) Delete(key T) interfaces.Set[T] {
+	return &DeleteTree[T]{
+		t,
+		t.GetEmpty().Insert(key),
+	}
+}
+
+func (t *RbTree[T]) Merge(other interfaces.Set[T]) interfaces.Set[T] {
+	panic("Unimplemented")
+}

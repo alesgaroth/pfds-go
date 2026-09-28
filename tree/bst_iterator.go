@@ -5,16 +5,36 @@ import (
 	"github.com/alesgaroth/pfds-go/list"
 )
 
-type BsSeq[T Ordered[T]] struct {
-	stack interfaces.Stack[*Tree[T]]
+type AbsTree[T any] interface {
+	Left() AbsTree[T]
+	Right() AbsTree[T]
+	Data() T
 }
 
-func (t *Tree[T]) Sequence() interfaces.Stack[T] {
+type BsSeq[T any] struct {
+	stack interfaces.Stack[AbsTree[T]]
+}
+
+func (t *Tree[T]) Left() AbsTree[T] {
+	return t.left
+}
+func (t *Tree[T]) Right() AbsTree[T] {
+	return t.right
+}
+func (t *Tree[T]) Data() T {
+	return t.data
+}
+
+
+func (t *Tree[T])Sequence() interfaces.Stack[T] {
+	return Sequence(t)
+}
+func Sequence[T any](t AbsTree[T]) interfaces.Stack[T] {
 	if t == nil {
 		return nil //list.EmptyList[T]()
 	}
-	var stack interfaces.Stack[*Tree[T]] = list.EmptyList[*Tree[T]]()
-	for ; t != nil; t = t.left {
+	var stack interfaces.Stack[AbsTree[T]] = list.EmptyList[AbsTree[T]]()
+	for ; t != nil; t = t.Left() {
 		stack = stack.Cons(t)
 	}
 	return &BsSeq[T]{stack}
@@ -29,7 +49,7 @@ func (seq *BsSeq[T]) Head() T {
 		return t
 	}
 	t := seq.stack.Head()
-	return t.data // panic if we somehow got a nil
+	return t.Data() // panic if we somehow got a nil
 }
 func (seq *BsSeq[T]) Tail() interfaces.Stack[T] {
 	if seq.IsEmpty() {
@@ -37,25 +57,25 @@ func (seq *BsSeq[T]) Tail() interfaces.Stack[T] {
 	}
 	t := seq.stack.Head()
 	stack := seq.stack.Tail()
-	for t = t.right; t != nil; t = t.left {
+	for t = t.Right(); t != nil; t = t.Left() {
 		stack = stack.Cons(t)
 	}
 	return &BsSeq[T]{stack}
 }
 
-func (t *Tree[T]) Count() int {
+/*func (t *Tree[T]) Count() int {
 	if t == nil {
 		return 0
 	}
-	return t.left.Count() + 1 + t.right.Count()
-}
+	return t.Left().Count() + 1 + t.Right().Count()
+} */
 
-func (t *Tree[T]) CountExplicitStack() int {
+func CountExplicitStack[T Ordered[T]](t AbsTree[T]) int {
 	if t == nil {
 		return 0
 	}
-	var stack interfaces.Stack[*Tree[T]] = list.EmptyList[*Tree[T]]()
-	for ; t != nil; t = t.left {
+	var stack interfaces.Stack[AbsTree[T]] = list.EmptyList[AbsTree[T]]()
+	for ; t != nil; t = t.Left() {
 		stack = stack.Cons(t)
 	}
 
@@ -65,8 +85,8 @@ func (t *Tree[T]) CountExplicitStack() int {
 		t = stack.Head()
 		count += 1
 		stack = stack.Tail()
-		t = t.right
-		for ; t != nil; t = t.left {
+		t = t.Right()
+		for ; t != nil; t = t.Left() {
 			stack = stack.Cons(t)
 		}
 	}

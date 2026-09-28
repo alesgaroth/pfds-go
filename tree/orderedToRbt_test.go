@@ -179,7 +179,6 @@ func TestSomeThing(t *testing.T) {
 	fftest(t, 200)
 }
 
-
 func FuzzOrderedToRbTree(f *testing.F) {
 	f.Add(uint(30))
 	f.Add(uint(40))
