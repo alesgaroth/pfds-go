@@ -30,7 +30,7 @@ func EmptyTreeMap[K Ordered[K], V comparable]() *TreeMap[K, V] {
 	return nil
 }
 
-var NotFound = fmt.Errorf("That value is already in the set")
+var NotFound = fmt.Errorf("That value is not in the set")
 
 func (t *TreeMap[K, V]) Lookup(elem K) (V, error) {
 	if t == nil {
