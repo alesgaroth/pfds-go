@@ -5,18 +5,6 @@ import (
 	"testing"
 )
 
-type OrderedInt int
-
-func (i OrderedInt) Eq(j OrderedInt) bool {
-	return i == j
-}
-func (i OrderedInt) Lt(j OrderedInt) bool {
-	return i < j
-}
-func (i OrderedInt) Leq(j OrderedInt) bool {
-	return i <= j
-}
-
 func TestOne(t *testing.T) {
 	var tr interfaces.Set[OrderedInt] = EmptyTree[OrderedInt]()
 	tr = tr.Insert(2)
